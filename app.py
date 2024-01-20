@@ -9,7 +9,6 @@ from models import db, User
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
-
 app.config['SECRET_KEY'] = 'f14b3778d202841e41f0e34361564795'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flaskdb.db'
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
@@ -60,8 +59,7 @@ def signup():
     db.session.commit()
 
     return jsonify({
-        "id": new_user.id,
-        "email": new_user.email
+        "message": "Registration successful"
     })
 
 @app.after_request
@@ -79,6 +77,7 @@ def refresh_expiring_jwts(response):
         return response
     except (RuntimeError, KeyError):
         return response
+
 @app.route('/register', methods=["POST"])
 def register_user():
     email = request.json.get("email", None)
@@ -88,7 +87,7 @@ def register_user():
         return jsonify({"error": "Email and password are required"}), 400
 
     user_exists = User.query.filter_by(email=email).first()
-   
+
     if user_exists:
         return jsonify({"error": "Email already exists"}), 409
 
@@ -98,8 +97,7 @@ def register_user():
     db.session.commit()
 
     return jsonify({
-        "id": new_user.id,
-        "email": new_user.email
+        "message": "Registration successful"
     })
 
 @app.route('/profiles', methods=["GET"])
@@ -107,6 +105,7 @@ def get_all_profiles():
     profiles = User.query.all()
     profile_list = [{"id": profile.id, "email": profile.email} for profile in profiles]
     return jsonify(profile_list)
+
 @app.route("/logout", methods=["POST"])
 def logout():
     response = jsonify({"msg": "Logout successful"})
@@ -123,10 +122,12 @@ def my_profile(getemail):
 
     response_body = {
         "id": user.id,
-        "name": user.name,
+        "name": user.name,  # You might need to update this if the User model has a 'name' attribute
         "email": user.email,
         "about": user.about
     }
 
-
     return response_body
+
+if __name__ == "__main__":
+    app.run(debug=True)
