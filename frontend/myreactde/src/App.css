@@ -36,3 +36,16 @@
     transform: rotate(360deg);
   }
 }
+body {
+  margin: 0;
+  background-color: #ffffff;
+}
+ 
+.h-50 {
+    margin-top:50px;
+}   
+ 
+.bg-c-lite-green {
+    background: -webkit-gradient(linear, left top, right top, from(#f29263), to(#ee5a6f));
+    background: linear-gradient(to right, #ee5a6f, #f29263);
+}
