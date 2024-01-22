@@ -5,6 +5,7 @@ from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, u
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from models import db, User
+import openai  
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -20,6 +21,9 @@ SQLALCHEMY_ECHO = True
 
 bcrypt = Bcrypt(app)
 db.init_app(app)
+
+# OpenAI API Key
+openai.api_key = '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'
 
 with app.app_context():
     db.create_all()
@@ -128,6 +132,31 @@ def my_profile(getemail):
     }
 
     return response_body
+
+@app.route('/summarize-code', methods=["POST"])
+@jwt_required()
+def summarize_code():
+    code_snippet = request.json.get("code_snippet", None)
+
+    if not code_snippet:
+        return jsonify({"error": "Code snippet is required"}), 400
+
+    try:
+        response = openai.Completion.create(
+            engine="text-davinci-003",  # Use the appropriate engine
+            prompt=code_snippet,
+            max_tokens=150,
+            temperature=0.7,
+        )
+
+        summary = response.choices[0].text.strip()
+        return jsonify({"summary": summary})
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "Code summarization failed"}), 500
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
