@@ -1,3 +1,5 @@
+// Profile.js
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -41,9 +43,8 @@ function Profile(props) {
 
   const handleCodeSubmit = async () => {
     try {
-      const response = await axios.post("YOUR_OPENAI_API_ENDPOINT", {
-        code: codeSnippet,
-        // Add other necessary parameters for the OpenAI API
+      const response = await axios.post("http://127.0.0.1:5000/summarize-code", {
+        code_snippet: codeSnippet,
       });
 
       if (response.data.summary) {
@@ -109,6 +110,15 @@ function Profile(props) {
                         <p>{summary}</p>
                       </div>
                     )}
+
+                    {/* Chatbot UI */}
+                    <iframe
+                      title="Chatbot"
+                      src="http://127.0.0.1:5000/"  // Update the URL accordingly
+                      width="100%"
+                      height="400px"
+                      frameBorder="0"
+                    ></iframe>
                   </div>
                 </div>
               </div>

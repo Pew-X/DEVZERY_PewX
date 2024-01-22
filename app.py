@@ -5,7 +5,7 @@ from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, u
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from models import db, User
-import openai  
+import openai
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -23,14 +23,27 @@ bcrypt = Bcrypt(app)
 db.init_app(app)
 
 # OpenAI API Key
-openai.api_key = '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'
+openai.api_key = 'sk-NrAQSNf3coENerPYQCPcT3BlbkFJBZI20evrjI0KmMk1xn'  # Replace with your OpenAI API key
 
 with app.app_context():
     db.create_all()
 
+def get_completion(prompt, model="text-davinci-003"):
+    try:
+        response = openai.Completion.create(
+            engine=model,
+            prompt=prompt,
+            max_tokens=150,
+            temperature=0.7,
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        print(e)
+        return "Error in code summarization"
+
 @app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
+def test():
+    return "<p></p>"
 
 @app.route('/logintoken', methods=["POST"])
 def create_token():
@@ -126,7 +139,7 @@ def my_profile(getemail):
 
     response_body = {
         "id": user.id,
-        "name": user.name,  # You might need to update this if the User model has a 'name' attribute
+        "name": user.name,  
         "email": user.email,
         "about": user.about
     }
@@ -142,21 +155,11 @@ def summarize_code():
         return jsonify({"error": "Code snippet is required"}), 400
 
     try:
-        response = openai.Completion.create(
-            engine="text-davinci-003",  # Use the appropriate engine
-            prompt=code_snippet,
-            max_tokens=150,
-            temperature=0.7,
-        )
-
-        summary = response.choices[0].text.strip()
-        return jsonify({"summary": summary})
-
+        response = get_completion(code_snippet, model="text-davinci-003")
+        return jsonify({"summary": response})
     except Exception as e:
         print(e)
         return jsonify({"error": "Code summarization failed"}), 500
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
